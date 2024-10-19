@@ -5,10 +5,15 @@ const Webhook = require('../models/webhook');
 // POST route to receive webhook and save to MongoDB
 webHookRouter.post('/receive', async (req, res) => {
     try {
+        // Log the received webhook data
+        console.log("Webhook received: ", req.body);
+
         const { ticker, action, strategy } = req.body;
 
-        // Log the received webhook data
-        console.log(`Received ${action.toUpperCase()} signal for ${ticker} using strategy ${strategy}`);
+        // Check if the required data is available
+        if (!ticker || !action || !strategy) {
+            return res.status(400).json({ message: 'Missing required data' });
+        }
 
         // Create a new Webhook document and save it to MongoDB
         const webhookData = new Webhook({
@@ -26,6 +31,7 @@ webHookRouter.post('/receive', async (req, res) => {
         res.status(500).json({ message: 'Error processing webhook' });
     }
 });
+
 
 // GET route to retrieve all webhook entries
 webHookRouter.get('/', async (req, res) => {
